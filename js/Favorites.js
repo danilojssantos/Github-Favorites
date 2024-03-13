@@ -10,26 +10,32 @@ export class Favorites {
     }
 
     load(){
-         this.entries= [
-            {
-                login: 'danilojssantos',
-                name: 'Danilo Joaquim',
-                public_repos: '76',
-                fallowers: '12000'
-            },
-            {
-                login: 'SLAriosi',
-                name: 'Lucas Eduardo Ariosi',
-                public_repos: '80',
-                fallowers: '13000'
-            },
-            {
-                login: 'profburnes',
-                name: 'Lucas Prof. Anderson Burnes',
-                public_repos: '80',
-                fallowers: '13000'
-            }
-          ]
+         this.entries = JSON.parse(localStorage.getItem
+            ('@github-favorites:')) || []
+        //const entries = localStorage.getItem('@github-favorites:')
+        //console.log(entries)
+
+      
+        //  this.entries= [
+        //     {
+        //         login: 'danilojssantos',
+        //         name: 'Danilo Joaquim',
+        //         public_repos: '76',
+        //         fallowers: '12000'
+        //     },
+        //     {
+        //         login: 'SLAriosi',
+        //         name: 'Lucas Eduardo Ariosi',
+        //         public_repos: '80',
+        //         fallowers: '13000'
+        //     },
+        //     {
+        //         login: 'profburnes',
+        //         name: 'Lucas Prof. Anderson Burnes',
+        //         public_repos: '80',
+        //         fallowers: '13000'
+        //     }
+        //   ]
     }
 
 
