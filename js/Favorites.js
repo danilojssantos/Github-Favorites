@@ -18,13 +18,31 @@ export class Favorites {
                 fallowers: '12000'
             },
             {
-                login: 'danilojssantos',
-                name: 'Luke Skywalker',
+                login: 'SLAriosi',
+                name: 'Lucas Eduardo Ariosi',
+                public_repos: '80',
+                fallowers: '13000'
+            },
+            {
+                login: 'profburnes',
+                name: 'Lucas Prof. Anderson Burnes',
                 public_repos: '80',
                 fallowers: '13000'
             }
           ]
     }
+
+
+    delete(user){
+        const filteredEntries = this.entries.filter(entry => 
+            entry.login !== user.login)
+
+
+    //paga o antigo array e coloca um novo array 
+        this.entries = filteredEntries
+        this.update()
+    }
+    
 }
 
 //classe que vai criar a visualização do HTML 
@@ -56,7 +74,19 @@ export class FavoritesView extends Favorites {
         row.querySelector('.user span').textContent = user.login
         row.querySelector('.repositories').textContent = user.public_repos
         row.querySelector('.followers').textContent = user.fallowers
-        
+        //onclick dispara um evento unico de click na aplicação
+        //caso app precisa mais evento de click addEventListener
+        row.querySelector('.remove').onclick = ()=>{
+            //recebe 0 confirm 
+            const isOk = confirm('Tem certeza que deseja deletar essa linha?')
+            
+            if (isOk) {
+
+        //função delete vem dentro das classe que manipula os dados 
+                this.delete(user)
+            }
+            
+        }
         // e uma funcção da dom que recebe o elemeto HTML 
         this.tbody.append(row)
        
