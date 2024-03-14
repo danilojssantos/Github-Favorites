@@ -1,26 +1,4 @@
-export class GithubUser{
-
-    static search(username){
-        ///essa const passa a valer o valor da url 
-        const endpoint = `https://api.github.com/users/${username}`
-
-        //busca na internet as informção 
-        //pega os dados em transforma em json 
-        return fetch(endpoint).then(data => data.json())
-        .then(({login, name, public_repos,followers})=>({
-        //nesse then passo oque precisa ser consumido da API 
-        //retorna objeto
-            login,
-            name,
-            public_repos,
-            followers
-
-        }))
-    }
-}
-
-
-
+import { GithubUser } from "./GithubUser.js"
 // classe que vai conter a logica dos dados
 //como os dados serão estruturados 
 export class Favorites {
@@ -30,46 +8,58 @@ export class Favorites {
  //e acresenta o id 
         this.root = document.querySelector(root)
         this.load()
+
         GithubUser.search('danilojssantos').then(user =>console.log(user))
     }
 
     load(){
          this.entries = JSON.parse(localStorage.getItem('@github-favorites:')) || []
-        
-        //console.log(entries)
-
-      
-        //  this.entries= [
-        //     {
-        //         login: 'danilojssantos',
-        //         name: 'Danilo Joaquim',
-        //         public_repos: '76',
-        //         fallowers: '12000'
-        //     },
-        //     {
-        //         login: 'SLAriosi',
-        //         name: 'Lucas Eduardo Ariosi',
-        //         public_repos: '80',
-        //         fallowers: '13000'
-        //     },
-        //     {
-        //         login: 'profburnes',
-        //         name: 'Lucas Prof. Anderson Burnes',
-        //         public_repos: '80',
-        //         fallowers: '13000'
-        //     }
-        //   ]
+         
     }
 
+    save(){
+            //salva no local stroge e transfor JSON em string
+        localStorage.setItem('@github-favorites', JSON.stringify(this.entries))
+
+    }
+
+    async add(username){
+        // valida se algo der errado entra no erro
+        try{
+
+          const userExists = this.entries.find(entry => entry.login === username)
+
+          if(userExists){
+            throw new Error('Usuario Ja Cadastrado')
+          }
+
+          const user = await GithubUser.search(username)
+
+          if(user.login === undefined){
+            throw new Error('Usuario Não encontrado')
+          }
+
+          this.entries =[user, ...this.entries]
+          //reescreve com um novo array
+          this.update()
+          //salva no local storage 
+          this.save()
+
+        }catch(error){
+            alert(error.message)
+        }
+        
+
+        
+    }
 
     delete(user){
-        const filteredEntries = this.entries.filter(entry => 
-            entry.login !== user.login)
-
-
+       
+        const filteredEntries = this.entries.filter(entry => entry.login !== user.login)
     //paga o antigo array e coloca um novo array 
         this.entries = filteredEntries
         this.update()
+        this.save()
     }
     
 }
@@ -84,21 +74,38 @@ export class FavoritesView extends Favorites {
         super(root)
     //pega dentro do App o valor tbody
     //pega valor de todas as linha (tr)
+        
         this.tbody = this.root.querySelector('table tbody')
         //console.log(this.root)
+        
         this.update()
+        this.onadd()
     }
-    //
+   
+
+
+    onadd(){
+        //addButton seleciona o valor class do button  
+        //rooot e tem valor id app
+        const addButton = this.root.querySelector('.search button')  
+        addButton.onclick = () => {
+            //pega valor que esta dentro da input
+           
+            const { value } = this.root.querySelector('.search input')
+            this.add(value)
+        }
+    }
     update(){
       this.removeAllTr()
 
-    
+        
       this.entries.forEach(user => {
         //retornando tr criado pela dom 
         const row = this.createRow()
         //faz e pesquisa para mudar a foto  
         row.querySelector('.user img').src=`https://github.com/${user.login}.png`
         row.querySelector('.user img').alt = `Image do ${user.name}`
+        row.querySelector('.user a').src=`https://github.com/${user.login}`
         row.querySelector('.user p').textContent = user.name 
         row.querySelector('.user span').textContent = user.login
         row.querySelector('.repositories').textContent = user.public_repos
@@ -142,10 +149,6 @@ export class FavoritesView extends Favorites {
                   <td class="repositories">76</td>
                   <td class="followers">9589</td>
                   <td class="remove">&times;</td>
-  
-  
-                
-        
         `
 
          return tr
@@ -158,8 +161,8 @@ export class FavoritesView extends Favorites {
     //pega valor de todas as linha (tr)
     //ele e um arraylike e por isso pode ter algumas funcionlidade
     // foreEach para cada tr que tiver ele vai executar uma função
-        this.tbody.querySelectorAll('tr')
-        .forEach((tr)=> {
+   
+    this.tbody.querySelectorAll('tr').forEach((tr) => {
             //responsavel para remover todos tr (linhas)
             tr.remove()
         })
